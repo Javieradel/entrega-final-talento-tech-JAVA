@@ -1,0 +1,32 @@
+services:
+ db:
+  image: postgres:15-alpine
+  container_name: postgres_dev_db
+  restart: always
+  environment:
+    POSTGRES_DB: prueba_final
+    POSTGRES_USER: user_dev
+    POSTGRES_PASSWORD: dev_password
+  ports:
+    - "5432:5432"
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+ app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: prueba_final_talentotech
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/prueba_final
+      SPRING_DATASOURCE_USERNAME: user_dev
+      SPRING_DATASOURCE_PASSWORD: dev_password
+    volumes:
+      - .:/app
+    entrypoint: ["./mvnw", "spring-boot:run"] 
+
+volumes:
+  postgres_data:
