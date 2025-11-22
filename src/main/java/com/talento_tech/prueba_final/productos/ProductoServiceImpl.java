@@ -20,6 +20,15 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public ProductoDTO save(ProductoDTO productoDTO) {
         Producto producto = toEntity(productoDTO);
+        if (productoDTO.getId() == null) {
+            Stock stock = new Stock();
+            stock.setCantidad(productoDTO.getStock() != null ? productoDTO.getStock() : 0);
+            producto.setStock(stock);
+            stock.setProducto(producto);
+        } else {
+            Producto existing = productoRepository.findById(productoDTO.getId()).orElseThrow(() -> new RuntimeException("Producto not found"));
+            producto.setStock(existing.getStock());
+        }
         producto = productoRepository.save(producto);
         return toDTO(producto);
     }
@@ -44,12 +53,31 @@ public class ProductoServiceImpl implements ProductoService {
         return productoCriteriaRepository.findAll(searchCriteria).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    @Override
+    public void updateStock(Long productoId, Integer cantidad) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto not found: " + productoId));
+        Stock stock = producto.getStock();
+        if (stock == null) {
+            stock = new Stock();
+            stock.setProducto(producto);
+            producto.setStock(stock);
+        }
+        stock.setCantidad(cantidad);
+        productoRepository.save(producto);
+    }
+
     private ProductoDTO toDTO(Producto producto) {
         ProductoDTO dto = new ProductoDTO();
         dto.setId(producto.getId());
         dto.setNombre(producto.getNombre());
         dto.setDescripcion(producto.getDescripcion());
         dto.setPrecio(producto.getPrecio());
+        if (producto.getStock() != null) {
+            dto.setStock(producto.getStock().getCantidad());
+        } else {
+            dto.setStock(0);
+        }
         return dto;
     }
 

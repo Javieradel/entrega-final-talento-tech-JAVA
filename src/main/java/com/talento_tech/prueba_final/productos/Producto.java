@@ -1,9 +1,6 @@
 package com.talento_tech.prueba_final.productos;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -15,4 +12,7 @@ public class Producto {
     private String nombre;
     private String descripcion;
     private Double precio;
+
+    @OneToOne(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Stock stock;
 }

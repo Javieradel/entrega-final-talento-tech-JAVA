@@ -8,4 +8,5 @@ public interface ProductoService {
     ProductoDTO findById(Long id);
     void deleteById(Long id);
     List<ProductoDTO> search(ProductoSearchCriteria searchCriteria);
+    void updateStock(Long productoId, Integer cantidad);
 }

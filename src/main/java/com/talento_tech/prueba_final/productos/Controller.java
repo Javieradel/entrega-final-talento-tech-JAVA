@@ -1,6 +1,7 @@
 package com.talento_tech.prueba_final.productos;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
 
@@ -30,8 +31,15 @@ public class Controller {
     }
 
     @PostMapping
-    public ProductoDTO createProducto(@RequestBody ProductoDTO productoDTO) {
-        return productoService.save(productoDTO);
+    public ResponseEntity<ProductoDTO> createProducto(@RequestBody ProductoDTO productoDTO) {
+        if (productoDTO.getId() != null) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .build();
+        }
+
+        ProductoDTO saved = productoService.save(productoDTO);
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/{id}")
@@ -69,5 +77,11 @@ public class Controller {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PutMapping("/{id}/stock")
+    public ResponseEntity<Void> updateStock(@PathVariable Long id, @RequestBody StockUpdateDTO stockUpdateDTO) {
+        productoService.updateStock(id, stockUpdateDTO.getCantidad());
+        return ResponseEntity.ok().build();
     }
 }
